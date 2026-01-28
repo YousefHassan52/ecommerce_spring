@@ -7,31 +7,29 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.math.BigDecimal;
-@Getter
 @AllArgsConstructor
-public class ProductDto {
-    private Long id;
+@Getter
+public class AddProductDto {
     private String name;
     private BigDecimal price;
     private String description;
     @JsonProperty("category_id")
     private Byte categoryId;
-    public static ProductDto productToDto(Product product) {
-        return new ProductDto(
-                product.getId(),
+    public static AddProductDto productToDto(Product product) {
+        return new AddProductDto(
                 product.getName(),
                 product.getPrice(),
                 product.getDescription(),
-                product.getCategory().getId()      );
+                product.getCategory().getId()
+        );
     }
     public Product toProduct() {
         Product product = new Product();
-        product.setId(this.getId());
         product.setName(this.getName());
         product.setPrice(this.getPrice());
         product.setDescription(this.getDescription());
         if(this.categoryId!=null){
-           product.setCategory(new Category(categoryId));
+            product.setCategory(new Category(categoryId));
         }
         return product;
     }

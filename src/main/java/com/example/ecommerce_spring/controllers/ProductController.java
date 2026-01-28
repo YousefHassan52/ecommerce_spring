@@ -1,15 +1,17 @@
 package com.example.ecommerce_spring.controllers;
 
+import com.example.ecommerce_spring.dtos.AddProductDto;
 import com.example.ecommerce_spring.dtos.ProductDto;
+import com.example.ecommerce_spring.entities.Category;
 import com.example.ecommerce_spring.entities.Product;
+import com.example.ecommerce_spring.repositories.CategoryRepository;
 import com.example.ecommerce_spring.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.Set;
 @RequestMapping("/products")
 public class ProductController {
     private  ProductRepository productRepository;
+    private  CategoryRepository categoryRepository;
 @GetMapping("")
     public Iterable<ProductDto> getProducts(
            @RequestParam(name = "sort",required = false) String sort
@@ -38,6 +41,66 @@ public class ProductController {
         return productRepository.findAll(Sort.by(result)).stream().map(ProductDto::productToDto).toList();
 
     }
+
+
+
+}
+
+@GetMapping("/{id}")
+public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
+    var product=productRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+    ProductDto productDto=ProductDto.productToDto(product);
+    return ResponseEntity.ok().body(productDto);
+
+}
+
+@PostMapping("")
+    public ResponseEntity<ProductDto> createProduct(@RequestBody AddProductDto body){
+
+    if(body.getCategoryId() == null){
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST," id is null");
+    }
+    categoryRepository.findById(body.getCategoryId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND,"there is no category with this id"));
+
+    Product product=productRepository.save(body.toProduct());
+
+
+    // 2na fe el 25er 3ayez 2_pass lel response body dto 3la mazagy (feh el id)
+    return ResponseEntity.status(HttpStatus.CREATED).body(ProductDto.productToDto(product));
+
+
+
+}
+
+@DeleteMapping("/{id}")
+    public ResponseEntity<ProductDto> deleteProduct(@PathVariable Long id){
+    var  product=productRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+    productRepository.delete(product);
+    return ResponseEntity.noContent().build();
+}
+
+@PutMapping("/{id}")
+    public ResponseEntity<ProductDto> updateProduct(@PathVariable Long id, @RequestBody AddProductDto body){
+    Product product=productRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    if(!body.getName().isEmpty()){
+        product.setName(body.getName());
+    }
+    if(!body.getDescription().isEmpty()){
+        product.setDescription(body.getDescription());
+    }
+    if(body.getPrice()!=null){
+        product.setPrice(body.getPrice());
+    }
+
+    if(body.getCategoryId()!=null){
+        categoryRepository.findById(body.getCategoryId()).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        product.setCategory(new Category(body.getCategoryId()));
+    }
+
+    productRepository.save(product);
+    return ResponseEntity.ok().body(ProductDto.productToDto(product));
+
 
 
 

@@ -1,9 +1,11 @@
 package com.example.ecommerce_spring.controllers;
 
+import com.example.ecommerce_spring.dtos.ChangePasswordDto;
+import com.example.ecommerce_spring.dtos.UpdateUserDto;
 import com.example.ecommerce_spring.dtos.UserDto;
 import com.example.ecommerce_spring.dtos.UserRegisterDto;
-import com.example.ecommerce_spring.entities.User;
 import com.example.ecommerce_spring.repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Map;
 import java.util.Set;
 
 @AllArgsConstructor
@@ -43,15 +46,71 @@ public class UserController {
         return ResponseEntity.ok(UserDto.userToDto(user));
     }
     @PostMapping("")
-    public UserDto createUser(@RequestBody UserRegisterDto userDto) {
-
+    public ResponseEntity<?> registerUser(
+             @Valid @RequestBody UserRegisterDto userDto) {
+        // kda spring fehem talma 2na passer object 2ni hab3tloh values of its variables
+        if(userRepository.existsByEmail(userDto.getEmail())) {
+            return  ResponseEntity.badRequest().body(
+                    Map.of("email", "Email already exists.")
+            );
+        }
         var user= userRepository.save(userDto.toUser());
 
-        return UserDto.userToDto(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(UserDto.userToDto(user));
 
 
 
         // return in response id name email(userDto)
     }
+
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @RequestBody UpdateUserDto updateUserDto,
+            @PathVariable Long id)
+    {
+        var user = userRepository.findById(id).orElseThrow(() ->new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if(!updateUserDto.getName().isEmpty()) {
+            user.setName(updateUserDto.getName());
+        }
+        if(!updateUserDto.getEmail().isEmpty()) {
+            user.setEmail(updateUserDto.getEmail());
+        }
+        if(!updateUserDto.getPassword().isEmpty()) {
+            user.setPassword(updateUserDto.getPassword());
+        }
+        userRepository.save(user);
+        return ResponseEntity.ok(UserDto.userToDto(user));
+
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<UserDto> deleteUser(@PathVariable Long id) {
+        var user=userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
+
+    }
+    @PostMapping("/{id}/change_password")
+    public ResponseEntity<UserDto> changePassword(
+            @RequestBody ChangePasswordDto body,
+            @PathVariable Long id
+    ){
+        var user=userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if(!body.getOldPassword().equals(user.getPassword())) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        user.setPassword(body.getNewPassword());
+        userRepository.save(user);
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 }
