@@ -108,6 +108,12 @@
             <plugin>
                 <groupId>org.flywaydb</groupId>
                 <artifactId>flyway-maven-plugin</artifactId>
+                <configuration>
+                    <url>jdbc:mysql://localhost:3306/store_api?createDatabaseIfNotExist=true</url>
+                    <user>root</user>
+                    <password>admin</password>
+                    <cleanDisabled>false</cleanDisabled>
+                </configuration>
 
             </plugin>
 
