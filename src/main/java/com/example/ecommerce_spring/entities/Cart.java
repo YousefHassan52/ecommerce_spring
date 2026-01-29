@@ -58,7 +58,6 @@ public class Cart {
 
     public void removeItemFromCart(CartItem cartItem){
         this.cartItems.remove(cartItem);
-        cartItem.setCart(null); // l2n fe 3ala2a bi direction wa7da
     }
 
 
