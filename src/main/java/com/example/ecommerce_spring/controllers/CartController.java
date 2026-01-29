@@ -45,25 +45,8 @@ public class CartController {
          throw new ResponseStatusException(HttpStatus.NOT_FOUND, "cart_id not found"); // throw 404 but without error msg
      }
 
-    var cartItem = cart.getCartItems().stream()
-            .filter(ci -> ci.getProduct().getId().equals(item.getProductId()))
-            .findFirst()
-            .orElse(null);
-    if(cartItem==null) // el item dh 2we mara yedafe
-    {
-       cartItem=new CartItem();
-      cartItem.setCart(cart);
-      cartItem.setProduct(product);
-      cartItem.setQuantity(1);
-      cart.getCartItems().add(cartItem);
-      // m4 me7tag assign el item to product
-
-    }
-    else
-    {
-        cartItem.setQuantity(cartItem.getQuantity()+1);
-    }
-
+    var cartItem = cart.getCartItemByProductId(item.getProductId());
+   cartItem= cart.addItemToCart(cartItem,product);
     cartRepository.save(cart);
     return ResponseEntity.ok(SpecialCartItemDto.toSpecialCartItemDto(cartItem));
 
@@ -88,21 +71,23 @@ public class CartController {
     }
 
     @PutMapping("/{id}/update-product/{productId}")
-    public ResponseEntity<SpecialCartItemDto> updateCartItem(
+    public ResponseEntity<?> updateCartItem(
             @PathVariable UUID id,
             @PathVariable Long productId,
             @RequestBody UpdateCartItemDto body
     ){
-      var cart=cartRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+      var cart=cartRepository.findById(id).orElse(null);
+      if(cart==null)
+      {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("cart not found"));
+      }
 
-        var cartItem = cart.getCartItems().stream()
-                .filter(ci -> ci.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElse(null);
+        var cartItem = cart.getCartItemByProductId(productId);
 
         if(cartItem==null)
         {
-            return ResponseEntity.badRequest().build();
+
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("product not found"));
         }
         cartItem.setQuantity(body.getQuantity());
         cartRepository.save(cart);
@@ -110,6 +95,34 @@ public class CartController {
         return ResponseEntity.ok().body(SpecialCartItemDto.toSpecialCartItemDto(cartItem));
 
 
+
+    }
+
+    @DeleteMapping("/{cart_id}/remove-item/{product_id}")
+    ResponseEntity<?> removeItemFromCart(
+            @PathVariable UUID cart_id,
+            @PathVariable Long product_id
+
+    ){
+        var cart=cartRepository.findById(cart_id).orElse(null);
+        if(cart==null)
+        {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("cart not found"));
+        }
+
+        var cartItem = cart.getCartItemByProductId(product_id);
+
+
+        if(cartItem!=null)
+        {
+            cart.removeItemFromCart(cartItem);
+            cartRepository.save(cart);
+            return ResponseEntity.noContent().build();
+
+        }
+        else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("product not found"));
+        }
 
     }
 
