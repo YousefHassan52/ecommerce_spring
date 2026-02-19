@@ -6,6 +6,9 @@ import com.example.ecommerce_spring.entities.Category;
 import com.example.ecommerce_spring.entities.Product;
 import com.example.ecommerce_spring.repositories.CategoryRepository;
 import com.example.ecommerce_spring.repositories.ProductRepository;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -20,6 +23,7 @@ import java.util.Set;
 @AllArgsConstructor
 @RestController
 @RequestMapping("/products")
+@Tag(name="Products")
 public class ProductController {
     private  ProductRepository productRepository;
     private  CategoryRepository categoryRepository;
@@ -47,7 +51,9 @@ public class ProductController {
 }
 
 @GetMapping("/{id}")
-public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
+public ResponseEntity<ProductDto> getProductById(
+        @Parameter(description = "The id of the product to be retrieved")
+        @PathVariable Long id){
     var product=productRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
     ProductDto productDto=ProductDto.productToDto(product);
     return ResponseEntity.ok().body(productDto);
@@ -55,7 +61,9 @@ public ResponseEntity<ProductDto> getProductById(@PathVariable Long id){
 }
 
 @PostMapping("")
-    public ResponseEntity<ProductDto> createProduct(@RequestBody AddProductDto body){
+@Operation(summary = "Create a new product")
+    public ResponseEntity<ProductDto> createProduct(
+            @RequestBody AddProductDto body){
 
     if(body.getCategoryId() == null){
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST," id is null");
