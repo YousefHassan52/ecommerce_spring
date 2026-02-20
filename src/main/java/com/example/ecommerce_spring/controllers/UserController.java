@@ -2,6 +2,7 @@ package com.example.ecommerce_spring.controllers;
 
 import com.example.ecommerce_spring.dtos.*;
 import com.example.ecommerce_spring.exceptions.EmailAlreadyExistsException;
+import com.example.ecommerce_spring.exceptions.EmailOrPasswordNotCorrectException;
 import com.example.ecommerce_spring.exceptions.ProductNotFoundException;
 import com.example.ecommerce_spring.repositories.UserRepository;
 import jakarta.validation.Valid;
@@ -65,7 +66,24 @@ public class UserController {
         // return in response id name email(userDto)
     }
 
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(
+            @Valid @RequestBody UserLoginDto userLoginDto
+    ){
+        var user=userRepository.findByEmail(userLoginDto.getEmail()).orElse(null);
+        if(user==null){
+            throw new EmailOrPasswordNotCorrectException();
+        }
+        else{
+            if(!passwordEncoder.matches(userLoginDto.getPassword(),user.getPassword())){
+                throw new EmailOrPasswordNotCorrectException();
+            }
+        }
 
+        return ResponseEntity.noContent().build();
+
+
+    }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> updateUser(
@@ -113,10 +131,17 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+
+    // exception handlers
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorDto> emailAlreadyExistsException(){
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDto("Email Already Exists"));
+    }
+
+    @ExceptionHandler(EmailOrPasswordNotCorrectException.class)
+    public ResponseEntity<ErrorDto> emailOrPasswordNotCorrectException(){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Email or Password Not Correct"));
     }
 
 
