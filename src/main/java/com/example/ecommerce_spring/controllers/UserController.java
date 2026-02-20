@@ -1,15 +1,15 @@
 package com.example.ecommerce_spring.controllers;
 
-import com.example.ecommerce_spring.dtos.ChangePasswordDto;
-import com.example.ecommerce_spring.dtos.UpdateUserDto;
-import com.example.ecommerce_spring.dtos.UserDto;
-import com.example.ecommerce_spring.dtos.UserRegisterDto;
+import com.example.ecommerce_spring.dtos.*;
+import com.example.ecommerce_spring.exceptions.EmailAlreadyExistsException;
+import com.example.ecommerce_spring.exceptions.ProductNotFoundException;
 import com.example.ecommerce_spring.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,6 +21,7 @@ import java.util.Set;
 @RequestMapping("/users")
 public class UserController {
     private UserRepository userRepository;
+    private PasswordEncoder passwordEncoder;
     @GetMapping("")
     public Iterable<UserDto> users(
             @RequestParam(name = "sort",required = false,defaultValue = "id") String sort
@@ -50,11 +51,12 @@ public class UserController {
              @Valid @RequestBody UserRegisterDto userDto) {
         // kda spring fehem talma 2na passer object 2ni hab3tloh values of its variables
         if(userRepository.existsByEmail(userDto.getEmail())) {
-            return  ResponseEntity.badRequest().body(
-                    Map.of("email", "Email already exists.")
-            );
+            throw new EmailAlreadyExistsException();
         }
-        var user= userRepository.save(userDto.toUser());
+
+        var user=userDto.toUser();
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        userRepository.save(user);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(UserDto.userToDto(user));
 
@@ -111,6 +113,11 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
+    @ExceptionHandler(EmailAlreadyExistsException.class)
+    public ResponseEntity<ErrorDto> emailAlreadyExistsException(){
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErrorDto("Email Already Exists"));
+    }
 
 
 }

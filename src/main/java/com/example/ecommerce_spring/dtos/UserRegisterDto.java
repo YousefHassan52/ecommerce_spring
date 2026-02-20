@@ -18,6 +18,8 @@ public class UserRegisterDto {
     private String name;
 
     @Email(message = "Not valid email address")
+    @NotBlank(message = "Email is required")
+
     private String email;
 
     @NotBlank(message = "password is required")
