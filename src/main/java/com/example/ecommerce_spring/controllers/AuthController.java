@@ -3,6 +3,7 @@ package com.example.ecommerce_spring.controllers;
 import com.example.ecommerce_spring.dtos.ErrorDto;
 import com.example.ecommerce_spring.dtos.JwtResponse;
 import com.example.ecommerce_spring.dtos.UserLoginDto;
+import com.example.ecommerce_spring.dtos.ValidTokenDto;
 import com.example.ecommerce_spring.exceptions.EmailOrPasswordNotCorrectException;
 import com.example.ecommerce_spring.repositories.UserRepository;
 import com.example.ecommerce_spring.services.JwtService;
@@ -15,6 +16,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @AllArgsConstructor
 @RestController
@@ -40,6 +43,18 @@ public class AuthController {
         var token = jwtService.generateToken(userLoginDto.getEmail());
 
         return ResponseEntity.ok(new JwtResponse(token));
+
+    }
+
+    @PostMapping("/validate")
+    public ResponseEntity<?> validateToken(
+            @RequestHeader("Authorization") String token
+    )
+    {
+        token=token.replace("Bearer ", "");
+        boolean valid= jwtService.validateToken(token);
+
+        return ResponseEntity.ok(new ValidTokenDto(valid));
 
     }
 

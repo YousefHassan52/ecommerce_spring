@@ -24,4 +24,19 @@ public class JwtService {
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
     }
+
+    public boolean validateToken(String token){
+        try{
+            var claims=Jwts
+                    .parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+            return claims.getExpiration().after(new Date());
+
+        } catch (Exception e) {
+            return false;
+        }
+    }
 }
