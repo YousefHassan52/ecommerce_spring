@@ -8,5 +8,5 @@ spring:
   jpa:
     show-sql: true
   jwt:
-    secret: nzvsV)Fd@[l@nRn<iroqw9G*+|B.EMRDdgnrw&R3Lb-
+    secret: ${JWT_SECRET}
 
