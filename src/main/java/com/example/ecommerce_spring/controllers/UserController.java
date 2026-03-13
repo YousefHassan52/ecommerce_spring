@@ -115,6 +115,8 @@ public class UserController {
     }
 
 
+
+
     // exception handlers
     @ExceptionHandler(EmailAlreadyExistsException.class)
     public ResponseEntity<ErrorDto> emailAlreadyExistsException(){
