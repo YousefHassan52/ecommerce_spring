@@ -33,14 +33,16 @@ public class AuthController {
     public ResponseEntity<?> loginUser(
             @Valid @RequestBody UserLoginDto userLoginDto
     ){
+
         authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(
+            new UsernamePasswordAuthenticationToken( // howa hena hy-check 2za kan el email s7 + 2za kan el password kman s7
                     userLoginDto.getEmail(),
                     userLoginDto.getPassword()
             )
         );
+        var user=userRepository.findByEmail(userLoginDto.getEmail()).orElseThrow(); // kda kda lw el email m4 mawgod el exception haye7sal mn el lines el fo2
 
-        var token = jwtService.generateToken(userLoginDto.getEmail());
+        var token = jwtService.generateToken(user);
 
         return ResponseEntity.ok(new JwtResponse(token));
 
@@ -60,8 +62,9 @@ public class AuthController {
     @GetMapping("/current_user")
     ResponseEntity<UserDto> getCurrentUser(){
         var auth= SecurityContextHolder.getContext().getAuthentication();
-        String email=(String) auth.getPrincipal();
-        var user= userRepository.findByEmail(email).orElse(null);
+        Long id= (Long) auth.getPrincipal(); // hena b-get id m4 email 5las
+        // howa el subject mb2a4 m5zen email b2a m5zn id
+        var user= userRepository.findById(id).orElse(null);
         if (user==null)
         {
             throw new UserEmailNotFoundException();
