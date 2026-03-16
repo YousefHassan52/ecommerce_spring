@@ -15,6 +15,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @AllArgsConstructor
 @RestController
@@ -78,6 +79,20 @@ public class AuthController {
         UserDto userDto=UserDto.userToDto(user);
         return ResponseEntity.ok(userDto);
 
+
+    }
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> refreshAccessToken(
+            @CookieValue(value = "refreshToken") String refreshToken
+    ){
+        Long id= jwtService.getIdFromToken(refreshToken);
+
+        var user=userRepository.findById(id).orElseThrow(()->new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if(!jwtService.validateToken(refreshToken)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
+        }
+        String accessToken= jwtService.generateAccessToken(user);
+        return ResponseEntity.ok(new JwtResponse((accessToken)));
 
     }
 
