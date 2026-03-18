@@ -1,5 +1,6 @@
 package com.example.ecommerce_spring.dtos;
 
+import com.example.ecommerce_spring.entities.Role;
 import com.example.ecommerce_spring.entities.User;
 import com.example.ecommerce_spring.validations.LowerCase;
 import jakarta.validation.constraints.Email;
@@ -35,6 +36,7 @@ public class UserRegisterDto {
         user.setName(this.getName());
         user.setEmail(this.getEmail());
         user.setPassword(this.getPassword());
+        user.setRole(Role.CUSTOMER);
         return user;
     }
 }

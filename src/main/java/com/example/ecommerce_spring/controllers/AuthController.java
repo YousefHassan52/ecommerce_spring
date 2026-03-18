@@ -96,6 +96,7 @@ public class AuthController {
 
     }
 
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorDto> emailOrPasswordNotCorrectException(){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ErrorDto("Email or Password Not Correct"));

@@ -1,5 +1,6 @@
 package com.example.ecommerce_spring.filters;
 
+import com.example.ecommerce_spring.entities.Role;
 import com.example.ecommerce_spring.services.JwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,12 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @AllArgsConstructor
 @Component
@@ -32,10 +35,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request,response);
             return;
         }
+        Long userId= jwtService.getIdFromToken(token);
+        Role userRole=jwtService.getRoleFromToken(token);
         var authentication=new UsernamePasswordAuthenticationToken(
-                jwtService.getIdFromToken(token),
+                userId,
                 null,
-                null
+                List.of(new SimpleGrantedAuthority("ROLE_"+userRole.name()))
         );
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

@@ -1,5 +1,6 @@
 package com.example.ecommerce_spring.dtos;
 
+import com.example.ecommerce_spring.entities.Role;
 import com.example.ecommerce_spring.entities.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,9 +15,10 @@ public class UserDto {
     private Long id;
     private String name;
     private String email;
+    private Role role;
 
     public static UserDto userToDto(User user) {
-        return new UserDto(user.getId(), user.getName(), user.getEmail());
+        return new UserDto(user.getId(), user.getName(), user.getEmail(),user.getRole());
     }
 
 

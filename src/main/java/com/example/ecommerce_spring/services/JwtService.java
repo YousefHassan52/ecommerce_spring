@@ -2,6 +2,7 @@ package com.example.ecommerce_spring.services;
 
 
 import com.example.ecommerce_spring.config.JwtConfiguration;
+import com.example.ecommerce_spring.entities.Role;
 import com.example.ecommerce_spring.entities.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -36,6 +37,7 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .claim("email", user.getEmail())
                 .claim("name", user.getName())
+                .claim("role",user.getRole())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(jwtConfig.getSecret().getBytes()))
@@ -53,6 +55,11 @@ public class JwtService {
     }
     public Long getIdFromToken(String token){
         return Long.valueOf(getClaims(token).getSubject());
+    }
+
+    public Role getRoleFromToken(String token){
+        String role=getClaims(token).get("role", String.class);
+        return Role.valueOf(role);
     }
 
     private Claims getClaims(String token) {
