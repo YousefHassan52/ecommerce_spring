@@ -1,7 +1,7 @@
 package com.example.ecommerce_spring.config;
 
+import com.example.ecommerce_spring.entities.Role;
 import com.example.ecommerce_spring.filters.JwtAuthenticationFilter;
-import jakarta.servlet.Filter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
 
 @Configuration
 @EnableWebSecurity
@@ -42,6 +43,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(c-> c
                     .requestMatchers("/carts/**").permitAll()
                     .requestMatchers(HttpMethod.POST,"/users").permitAll()
+                    .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                     .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
 
