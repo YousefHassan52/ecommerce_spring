@@ -48,7 +48,7 @@ public class User {
         address.setUser(null);
     }
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.REMOVE)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private Profile profile;
 
     @ManyToMany
@@ -59,6 +59,13 @@ public class User {
     )
     private Set<Product> favoriteProducts = new HashSet<>();
 
+    @OneToMany(
+            mappedBy = "customer",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
+    private List<Order> orders=new ArrayList<>();
     public void addFavoriteProduct(Product product) {
         favoriteProducts.add(product);
     }

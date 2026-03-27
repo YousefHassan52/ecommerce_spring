@@ -33,6 +33,13 @@ public class Product {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @OneToMany(
+            mappedBy = "product",
+
+            fetch = FetchType.LAZY
+    )
+    private List<OrderItem> orderItems=new ArrayList<>();
+
     @OneToMany(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
    private List<CartItem> cartItems =new ArrayList<>();
 }
