@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,7 +38,7 @@ public class Order {
     private OrderStatus status;
 
     @Column(name = "total_price")
-    private double totalPrice;
+    private BigDecimal totalPrice;
 
     @Column(name = "created_at",insertable = false,updatable = false)
     private LocalDateTime createdAt;

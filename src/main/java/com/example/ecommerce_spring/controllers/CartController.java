@@ -2,6 +2,7 @@ package com.example.ecommerce_spring.controllers;
 
 import com.example.ecommerce_spring.dtos.*;
 
+import com.example.ecommerce_spring.exceptions.CartEmptyException;
 import com.example.ecommerce_spring.exceptions.CartNotFoundException;
 import com.example.ecommerce_spring.exceptions.ProductNotFoundException;
 import com.example.ecommerce_spring.services.CartService;
@@ -94,6 +95,12 @@ public class CartController {
 
       return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("product not found"));
     }
+
+  @ExceptionHandler(CartEmptyException.class)
+  public ResponseEntity<ErrorDto> handleCartEmptyException(){
+
+    return ResponseEntity.status(HttpStatus.UNPROCESSABLE_CONTENT).body(new ErrorDto("Empty cart. products may be have been deleted from the platform"));
+  }
 
 
 

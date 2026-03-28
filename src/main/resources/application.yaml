@@ -10,4 +10,4 @@ spring:
   jwt:
     secret: ${JWT_SECRET}
     refreshTokenExpiration: 604800 # 7 days
-    accessTokenExpiration: 900 # 15 mins
+    accessTokenExpiration: 7200 # 15 mins
