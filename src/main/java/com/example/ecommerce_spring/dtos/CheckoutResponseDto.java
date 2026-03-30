@@ -29,6 +29,7 @@ public class CheckoutResponseDto {
                 order.getStatus(),
                 order.getTotalPrice(),
                 order.getCreatedAt()
+
         );
     }
 }
