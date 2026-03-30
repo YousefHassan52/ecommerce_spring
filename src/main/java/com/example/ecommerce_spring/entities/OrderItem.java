@@ -35,6 +35,16 @@ public class OrderItem {
     @Column(name = "total_price")
     private BigDecimal total_price;
 
+    public OrderItem(CartItem cartItem,Order order){
+        this.setOrder(order); // sign order id to order item
+
+        this.setProduct(cartItem.getProduct());
+        this.setQuantity(cartItem.getQuantity());
+        this.setUnit_price(cartItem.getProduct().getPrice());
+        this.setTotal_price(cartItem.getProduct().getPrice().multiply(BigDecimal.valueOf(cartItem.getQuantity())));
+
+    }
+
 
 
 

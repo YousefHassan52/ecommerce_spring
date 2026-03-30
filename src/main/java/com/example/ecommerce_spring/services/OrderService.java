@@ -36,31 +36,9 @@ public class OrderService {
             throw new CartEmptyException();
         }
 
-        Order order=new Order();
-        order.setCustomer(user);
-        order.setStatus(OrderStatus.PENDING);
-        cart.getCartItems().forEach(item->{
-            OrderItem orderItem=new OrderItem();
-
-            orderItem.setOrder(order); // sign order id to order item
-
-            orderItem.setProduct(item.getProduct());
-            orderItem.setQuantity(item.getQuantity());
-            orderItem.setUnit_price(item.getProduct().getPrice());
-            orderItem.setTotal_price(item.getProduct().getPrice().multiply(BigDecimal.valueOf(item.getQuantity())));
-            order.getOrderItemList().add(orderItem); // add order item to orderItems list
-        });
-
-        BigDecimal totalOrderPrice=BigDecimal.ZERO;
-        for (OrderItem orderItem:order.getOrderItemList())
-        {
-           totalOrderPrice= totalOrderPrice.add(orderItem.getTotal_price()) ;
-
-        }
-
-        order.setCreatedAt(LocalDateTime.now());
-        order.setTotalPrice(totalOrderPrice);
+        Order order=Order.createOrderFormCart(cart,user);
         orderRepository.save(order);
+
         cart.getCartItems().clear();
         cartRepository.save(cart);
         return order;
