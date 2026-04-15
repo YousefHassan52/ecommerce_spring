@@ -16,6 +16,10 @@ import java.util.UUID;
 @NoArgsConstructor
 public class CheckoutResponseDto {
 
+    @JsonProperty("order_id")
+    private Long orderId;
+
+    @JsonProperty("status")
     private OrderStatus status;
 
     @JsonProperty("total_price")
@@ -23,12 +27,21 @@ public class CheckoutResponseDto {
 
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
-    public static CheckoutResponseDto toDto(Order order)
+
+    @JsonProperty("session_url")
+    private String sessionUrl;
+
+    public static CheckoutResponseDto toDto(Order order,String sessionUrl)
     {
         return new CheckoutResponseDto(
+                order.getId(),
                 order.getStatus(),
                 order.getTotalPrice(),
-                order.getCreatedAt()
+                order.getCreatedAt(),
+                sessionUrl
+
+
+
 
         );
     }

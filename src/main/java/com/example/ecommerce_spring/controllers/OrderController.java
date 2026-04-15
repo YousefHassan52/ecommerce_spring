@@ -7,6 +7,7 @@ import com.example.ecommerce_spring.exceptions.CartEmptyException;
 import com.example.ecommerce_spring.exceptions.OrderAccessDenied;
 import com.example.ecommerce_spring.exceptions.OrderNotFoundException;
 import com.example.ecommerce_spring.services.OrderService;
+import com.stripe.exception.StripeException;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +21,17 @@ import java.util.List;
 public class OrderController {
     private final OrderService orderService;
     @PostMapping("/checkout")
-    public ResponseEntity<CheckoutResponseDto> checkout(
+    public ResponseEntity<?> checkout(
             @RequestBody CheckoutRequestDto request
     ){
-        var order=orderService.checkout(request.getCartId());
-        CheckoutResponseDto responseDto=CheckoutResponseDto.toDto(order);
+        try {
+            var orderDto = orderService.checkout(request.getCartId()); // return order dto not order
 
 
-        return ResponseEntity.ok().body(responseDto);
-
+            return ResponseEntity.ok().body(orderDto);
+        } catch (StripeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorDto("Payment processing failed. Please try again."));
+        }
 
     }
 
